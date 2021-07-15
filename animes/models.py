@@ -1,4 +1,28 @@
 from django.db import models
+from django.contrib.auth.models import User
+from datetime import date
+
+
+class Profile(models.Model):
+    SEX_CHOICE = [
+        ('f', 'Female'),
+        ('m', 'Male'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1)
+    bio = models.CharField('Bio', max_length=500)
+    birth_date = models.DateField(blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+    def get_age_or_question_mark(self):
+        if self.birth_date is None:
+            return '?'
+
+        today = date.today()
+        birth = self.birth_date
+        return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
 
 
 class Seiyu(models.Model):
@@ -64,3 +88,58 @@ class Anime(models.Model):
     genres = models.ManyToManyField(Genre)
     producer = models.ForeignKey(Producer, on_delete=models.SET_NULL, blank=True, null=True)
     url = models.SlugField(unique=True, max_length=160)
+
+    def __str__(self):
+        return self.title
+
+    def calculate_rating(self):
+        ratings_count = self.rating_set.all().count()
+        if ratings_count == 0:
+            return 0
+
+        score_sum = 0
+        for rating in self.rating_set:
+            score_sum += rating.score
+        return round((score_sum / ratings_count), 2)
+
+
+class Comment(models.Model):
+    text = models.CharField('Text', max_length=500)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+    publish_date = models.DateTimeField('Publish date', auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} about {self.anime} ({str(self.publish_date)})"
+
+
+class Rating(models.Model):
+    WORST = 1
+    TERRIBLE = 2
+    SHITTY = 3
+    BAD = 4
+    SOSO = 5
+    FINE = 6
+    GOOD = 7
+    EXCELLENT = 8
+    MASTERPIECE = 9
+    GODTIER = 10
+    SCORE_CHOICES = [
+        (WORST, 'Worst'),
+        (TERRIBLE, 'Terrible'),
+        (SHITTY, 'Shitty'),
+        (BAD, 'Bad'),
+        (SOSO, 'So-so'),
+        (FINE, 'Fine'),
+        (GOOD, 'Good'),
+        (EXCELLENT, 'Excellent'),
+        (MASTERPIECE, 'Masterpiece'),
+        (GODTIER, 'God tier')
+    ]
+    score = models.IntegerField('Score', choices=SCORE_CHOICES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} rated {self.anime.title} with {self.score}"
+
