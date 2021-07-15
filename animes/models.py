@@ -23,7 +23,7 @@ class Character(models.Model):
     name = models.CharField('Name', max_length=100)
     picture = models.ImageField('Picture', upload_to='characters/')
     anime = models.ForeignKey('Anime', on_delete=models.CASCADE)
-    description = models.CharField('Description', max_length=1500)
+    description = models.TextField('Description')
     seiyu = models.ForeignKey(Seiyu, on_delete=models.SET_NULL, blank=True,
                               related_name='voiced_characters', null=True)
     url = models.SlugField(unique=True, max_length=160)
@@ -57,7 +57,7 @@ class Anime(models.Model):
     ]
     title = models.CharField('Title', max_length=100)
     poster = models.ImageField('Poster', upload_to='anime_posters/')
-    description = models.CharField('Description', max_length=1500)
+    description = models.TextField('Description')
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.CharField('Status', choices=STATUS_CHOICES, max_length=5)
     release_date = models.DateField('Release date')
