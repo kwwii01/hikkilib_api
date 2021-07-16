@@ -23,13 +23,14 @@ class ProfileAdmin(admin.ModelAdmin):
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'url')
-    list_display_links = ('name',)
+    list_display_links = ('name', 'url')
 
 
 @admin.register(Seiyu)
 class SeiyuAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'get_picture', 'url')
     list_display_links = ('name',)
+    readonly_fields = ('get_picture',)
 
     def get_picture(self, obj):
         return mark_safe(f'<img src={obj.picture.url} width="50" height="60">')
@@ -47,6 +48,7 @@ class GenreAdmin(admin.ModelAdmin):
 class ProducerAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'get_picture', 'url')
     list_display_links = ('name',)
+    readonly_fields = ('get_picture',)
 
     def get_picture(self, obj):
         return mark_safe(f'<img src={obj.picture.url} width="70" height="40">')
@@ -62,40 +64,59 @@ class RatingInline(admin.TabularInline):
 
 class CommentInline(admin.StackedInline):
     model = Comment
-    extra = 1
-
-
-class CharacterInline(admin.StackedInline):
-    model = Character
-    extra = 1
+    extra = 0
+    readonly_fields = ('user', )
 
 
 @admin.register(Anime)
 class AnimeAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'type', 'get_poster', 'url')
     list_display_links = ('title',)
-    list_filter = ('type', 'producer', 'genres')
+    list_filter = ('type', 'producer', 'genres', 'year')
     search_fields = ('title', 'description')
-    inlines = [CharacterInline, RatingInline, CommentInline]
+    readonly_fields = ('get_poster',)
+    fieldsets = (
+        (None, {
+            'fields': ('title', ('type', 'status', 'producer'))
+        }),
+        (None, {
+            'fields': (('poster', 'get_poster'), )
+        }),
+        (None, {
+           'fields': (('year', 'release_date'), )
+        }),
+        (None, {
+            'fields': ('description',)
+        }),
+        (None, {
+            'fields': (('genres', 'characters'), )
+        }),
+        (None, {
+            'fields': ('url', )
+        }),
+    )
+    inlines = [RatingInline, CommentInline]
     form = AnimeAdminForm
     save_on_top = True
     save_as = True
 
     def get_poster(self, obj):
-        return mark_safe(f'<img src={obj.picture.url} width="50" height="60">')
+        return mark_safe(f'<img src={obj.poster.url} width="50" height="60">')
 
     get_poster.short_description = 'Poster'
 
 
-
-
 @admin.register(Character)
 class CharacterAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'anime', 'url')
+    list_display = ('id', 'name', 'get_picture', 'url')
     list_display_links = ('name',)
     search_fields = ('name',)
+    readonly_fields = ('get_picture', )
 
+    def get_picture(self, obj):
+        return mark_safe(f'<img src={obj.picture.url} width="50" height="60">')
 
+    get_picture.short_description = 'Picture'
 
 
 

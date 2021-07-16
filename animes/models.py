@@ -49,7 +49,6 @@ class Producer(models.Model):
 class Character(models.Model):
     name = models.CharField('Name', max_length=100)
     picture = models.ImageField('Picture', upload_to='characters/')
-    anime = models.ForeignKey('Anime', on_delete=models.CASCADE)
     description = models.TextField('Description')
     seiyu = models.ForeignKey(Seiyu, on_delete=models.SET_NULL, blank=True,
                               related_name='voiced_characters', null=True)
@@ -87,8 +86,10 @@ class Anime(models.Model):
     description = models.TextField('Description')
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.CharField('Status', choices=STATUS_CHOICES, max_length=5)
+    year = models.PositiveIntegerField('Year', default=2021)
     release_date = models.DateField('Release date')
     genres = models.ManyToManyField(Genre)
+    characters = models.ManyToManyField(Character)
     producer = models.ForeignKey(Producer, on_delete=models.SET_NULL, blank=True, null=True)
     url = models.SlugField(unique=True, max_length=160)
 
