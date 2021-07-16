@@ -10,7 +10,7 @@ class Profile(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1)
-    bio = models.CharField('Bio', max_length=500)
+    bio = models.TextField('Bio', max_length=500)
     birth_date = models.DateField(blank=True)
 
     def __str__(self):
@@ -28,6 +28,8 @@ class Profile(models.Model):
 class Seiyu(models.Model):
     name = models.CharField('Name', max_length=100)
     picture = models.ImageField('Picture', upload_to='seiyu/')
+    year_of_birth = models.DateField('Year of birth', auto_now=False, blank=False, null=True)
+    year_of_death = models.DateField('Year of death', auto_now=False, blank=True, null=True)
     url = models.SlugField(unique=True, max_length=160)
 
     def __str__(self):
@@ -58,7 +60,7 @@ class Character(models.Model):
 
 class Genre(models.Model):
     name = models.CharField('Name', max_length=40, unique=True)
-    description = models.CharField('Description', max_length=200)
+    description = models.TextField('Description', max_length=500)
     url = models.SlugField(unique=True, max_length=160)
 
     def __str__(self):
@@ -98,13 +100,13 @@ class Anime(models.Model):
             return 0
 
         score_sum = 0
-        for rating in self.rating_set:
+        for rating in self.rating_set.all():
             score_sum += rating.score
         return round((score_sum / ratings_count), 2)
 
 
 class Comment(models.Model):
-    text = models.CharField('Text', max_length=500)
+    text = models.TextField('Text', max_length=500)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
     publish_date = models.DateTimeField('Publish date', auto_now=True)
@@ -142,4 +144,3 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"{self.user.username} rated {self.anime.title} with {self.score}"
-
