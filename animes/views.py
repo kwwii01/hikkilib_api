@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Anime
 from .serializers import AnimeListSerializer, AnimeDetailSerializer, CommentCreateSerializer
@@ -20,6 +21,8 @@ class AnimeDetailView(APIView):
 
 
 class CommentCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         review = CommentCreateSerializer(data=request.data)
         if review.is_valid():

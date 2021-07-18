@@ -5,6 +5,7 @@ from .models import Type, Anime, Seiyu, Producer, Genre, Comment,\
     Profile, Rating, Character, AnimeScreenshots, Status
 
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
+from django.conf import settings
 
 
 class AnimeAdminForm(forms.ModelForm):
@@ -17,8 +18,15 @@ class AnimeAdminForm(forms.ModelForm):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user')
-    readonly_fields = ('user',)
+    list_display = ('id', 'user', 'get_picture')
+    readonly_fields = ('get_picture',)
+
+    def get_picture(self, obj):
+        if obj.picture:
+            return mark_safe(f'<img src={obj.picture.url} width="50" height="60">')
+        return mark_safe(f'<img src="{settings.STATIC_URL}nopic.png" width="50" height="60">')
+
+    get_picture.short_description = 'Picture'
 
 
 @admin.register(Type)

@@ -9,10 +9,10 @@ class Profile(models.Model):
         ('m', 'Male'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    picture = models.ImageField('Picture', upload_to='profiles/', null=True)
-    sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1)
-    bio = models.TextField('Bio', max_length=500)
-    birth_date = models.DateField(blank=True)
+    picture = models.ImageField('Picture', upload_to='profiles/', null=True, blank=True)
+    sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1, null=True, blank=True)
+    bio = models.TextField('Bio', max_length=500, null=True, blank=True)
+    birth_date = models.DateField(blank=True, null=True, default=None)
 
     def __str__(self):
         return self.user.username
