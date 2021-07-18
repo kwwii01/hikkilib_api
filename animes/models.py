@@ -75,6 +75,14 @@ class Type(models.Model):
         return self.name
 
 
+class Status(models.Model):
+    name = models.CharField('Name', max_length=15, unique=True)
+    url = models.SlugField(unique=True, max_length=160)
+
+    def __str__(self):
+        return self.name
+
+
 class Anime(models.Model):
     STATUS_CHOICES = [
         ('anons', 'Announced'),
@@ -85,7 +93,7 @@ class Anime(models.Model):
     poster = models.ImageField('Poster', upload_to='anime_posters/')
     description = models.TextField('Description')
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, blank=True, null=True)
-    status = models.CharField('Status', choices=STATUS_CHOICES, max_length=5)
+    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True)
     year = models.PositiveIntegerField('Year', default=2021)
     release_date = models.DateField('Release date')
     genres = models.ManyToManyField(Genre)
@@ -110,11 +118,16 @@ class Anime(models.Model):
 class Comment(models.Model):
     text = models.TextField('Text', max_length=500)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='comments')
     publish_date = models.DateTimeField('Publish date', auto_now=True)
 
     def __str__(self):
         return f"{self.user.username} about {self.anime} ({str(self.publish_date)})"
+
+
+class AnimeScreenshots(models.Model):
+    screenshot = models.ImageField('Screenshot', upload_to='anime_screenshots/')
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
 
 
 class Rating(models.Model):

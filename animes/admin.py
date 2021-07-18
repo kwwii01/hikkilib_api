@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django import forms
 from django.utils.html import mark_safe
-from .models import Type, Anime, Seiyu, Producer, Genre, Comment, Profile, Rating, Character
+from .models import Type, Anime, Seiyu, Producer, Genre, Comment,\
+    Profile, Rating, Character, AnimeScreenshots, Status
 
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
@@ -26,6 +27,13 @@ class TypeAdmin(admin.ModelAdmin):
     list_display_links = ('name', 'url')
 
 
+# @admin.register(Status)
+# class StatusAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'name', 'url')
+#     list_display_links = ('id', 'name',)
+#     readonly_fields = ('anime_set', )
+
+
 @admin.register(Seiyu)
 class SeiyuAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'get_picture', 'url')
@@ -40,6 +48,12 @@ class SeiyuAdmin(admin.ModelAdmin):
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'url')
+    list_display_links = ('name',)
+
+
+@admin.register(Status)
+class StatusAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'url')
     list_display_links = ('name',)
 
@@ -68,9 +82,20 @@ class CommentInline(admin.StackedInline):
     readonly_fields = ('user', )
 
 
+class AnimeScreenshotInline(admin.TabularInline):
+    model = AnimeScreenshots
+    readonly_fields = ('get_picture', )
+    extra = 1
+
+    def get_picture(self, obj):
+        return mark_safe(f'<img src={obj.screenshot.url} width="60" height="50">')
+
+    get_picture.short_description = 'Screenshot'
+
+
 @admin.register(Anime)
 class AnimeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'type', 'get_poster', 'url')
+    list_display = ('id', 'title', 'type', 'year', 'get_poster', 'url')
     list_display_links = ('title',)
     list_filter = ('type', 'producer', 'genres', 'year')
     search_fields = ('title', 'description')
@@ -95,7 +120,7 @@ class AnimeAdmin(admin.ModelAdmin):
             'fields': ('url', )
         }),
     )
-    inlines = [RatingInline, CommentInline]
+    inlines = [AnimeScreenshotInline, RatingInline, CommentInline]
     form = AnimeAdminForm
     save_on_top = True
     save_as = True
