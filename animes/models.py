@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
+from django.conf import settings
 
 
 class Profile(models.Model):
@@ -9,10 +10,11 @@ class Profile(models.Model):
         ('m', 'Male'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    picture = models.ImageField('Picture', upload_to='profiles/', null=True, blank=True)
+    picture = models.ImageField('Picture', upload_to='profiles/', null=True, blank=True,
+                                default='profiles/nopic.png')
     sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1, null=True, blank=True)
     bio = models.TextField('Bio', max_length=500, null=True, blank=True)
-    birth_date = models.DateField(blank=True, null=True, default=None)
+    birth_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.user.username
