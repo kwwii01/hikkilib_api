@@ -95,6 +95,7 @@ class Anime(models.Model):
     description = models.TextField('Description')
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True)
+    rating = models.FloatField('Rating', default=0, null=True)
     year = models.PositiveIntegerField('Year', default=2021)
     release_date = models.DateField('Release date')
     genres = models.ManyToManyField(Genre)
@@ -106,12 +107,12 @@ class Anime(models.Model):
         return self.title
 
     def calculate_rating(self):
-        ratings_count = self.rating_set.all().count()
+        ratings_count = self.users_ratings.all().count()
         if ratings_count == 0:
             return 0
 
         score_sum = 0
-        for rating in self.rating_set.all():
+        for rating in self.users_ratings.all():
             score_sum += rating.score
         return round((score_sum / ratings_count), 2)
 
@@ -156,7 +157,7 @@ class Rating(models.Model):
     ]
     score = models.IntegerField('Score', choices=SCORE_CHOICES)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='users_ratings')
 
     def __str__(self):
         return f"{self.user.username} rated {self.anime.title} with {self.score}"

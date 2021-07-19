@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Anime, Comment, Rating
+from .models import Anime, Comment, Rating, AnimeScreenshots
 
 
 class AnimeListSerializer(serializers.ModelSerializer):
@@ -32,6 +32,12 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('user', 'text', 'publish_date')
 
 
+class AnimeScreenshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnimeScreenshots
+        fields = ('screenshot', )
+
+
 class AnimeDetailSerializer(serializers.ModelSerializer):
     type = serializers.SlugRelatedField(slug_field='name', read_only=True)
     producer = serializers.SlugRelatedField(slug_field='name', read_only=True)
@@ -39,6 +45,7 @@ class AnimeDetailSerializer(serializers.ModelSerializer):
     characters = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
     status = serializers.SlugRelatedField(slug_field='name', read_only=True)
     comments = CommentSerializer(many=True)
+    anime_screenshots = AnimeScreenshotSerializer(many=True)
 
     class Meta:
         model = Anime
