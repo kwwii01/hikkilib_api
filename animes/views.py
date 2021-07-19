@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Anime
-from .serializers import AnimeListSerializer, AnimeDetailSerializer, CommentCreateSerializer
+from .serializers import AnimeListSerializer, AnimeDetailSerializer, CommentCreateSerializer, RatingCreateSerializer
 
 
 class AnimeListView(APIView):
@@ -24,8 +24,17 @@ class CommentCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        review = CommentCreateSerializer(data=request.data)
-        if review.is_valid():
-            review.save()
+        comment = CommentCreateSerializer(data=request.data, context={'user': request.user})
+        if comment.is_valid():
+            comment.save()
+        return Response(comment.data)
 
-        return Response(status=201)
+
+class RatingCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        rating = RatingCreateSerializer(data=request.data, context={'user': request.user})
+        if rating.is_valid():
+            rating.save()
+        return Response(rating.data)

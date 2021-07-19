@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
-from django.conf import settings
 
 
 class Profile(models.Model):
@@ -129,7 +128,7 @@ class Comment(models.Model):
 
 class AnimeScreenshots(models.Model):
     screenshot = models.ImageField('Screenshot', upload_to='anime_screenshots/')
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='anime_screenshots')
 
 
 class Rating(models.Model):

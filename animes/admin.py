@@ -152,5 +152,7 @@ class CharacterAdmin(admin.ModelAdmin):
     get_picture.short_description = 'Picture'
 
 
-
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'anime')
 
