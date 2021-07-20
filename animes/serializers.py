@@ -5,10 +5,11 @@ from .models import Anime, Comment, Rating, AnimeScreenshots, Character, Seiyu
 
 class AnimeListSerializer(serializers.ModelSerializer):
     type = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    status = serializers.SlugRelatedField(slug_field='name', read_only=True)
 
     class Meta:
         model = Anime
-        fields = ('title', 'poster', 'type', 'year')
+        fields = ('title', 'poster', 'type', 'year', 'status')
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -38,20 +39,6 @@ class AnimeScreenshotSerializer(serializers.ModelSerializer):
         fields = ('screenshot', )
 
 
-class AnimeDetailSerializer(serializers.ModelSerializer):
-    type = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    producer = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    genres = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
-    characters = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
-    status = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    comments = CommentSerializer(many=True)
-    anime_screenshots = AnimeScreenshotSerializer(many=True)
-
-    class Meta:
-        model = Anime
-        fields = '__all__'
-
-
 class RatingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
@@ -78,7 +65,21 @@ class RatingCreateSerializer(serializers.ModelSerializer):
 class CharacterListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Character
-        fields = ('id', 'name', 'picture')
+        fields = ('id', 'name', 'picture', 'main_character')
+
+
+class AnimeDetailSerializer(serializers.ModelSerializer):
+    type = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    producer = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    genres = serializers.SlugRelatedField(slug_field='name', read_only=True, many=True)
+    characters = CharacterListSerializer(read_only=True, many=True)
+    status = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    comments = CommentSerializer(many=True)
+    anime_screenshots = AnimeScreenshotSerializer(many=True)
+
+    class Meta:
+        model = Anime
+        fields = '__all__'
 
 
 class SeiyuListSerializer(serializers.ModelSerializer):

@@ -40,6 +40,7 @@ class Seiyu(models.Model):
     class Meta:
         verbose_name_plural = 'Seiyu'
 
+
 class Producer(models.Model):
     name = models.CharField('Name', max_length=100)
     picture = models.ImageField('Picture', upload_to='producers/')

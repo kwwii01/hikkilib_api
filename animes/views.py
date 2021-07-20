@@ -3,7 +3,12 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 
+from django_filters.rest_framework import DjangoFilterBackend
+
+from django.db.models import Count
+
 from .models import Anime, Character, Seiyu
+from .service import AnimeFilter
 from .serializers import (
     AnimeListSerializer,
     AnimeDetailSerializer,
@@ -16,18 +21,16 @@ from .serializers import (
 )
 
 
-class AnimeListView(APIView):
-    def get(self, request):
-        animes = Anime.objects.all()
-        serializer = AnimeListSerializer(animes, many=True)
-        return Response(serializer.data)
+class AnimeListView(generics.ListAPIView):
+    queryset = Anime.objects.all().distinct()
+    serializer_class = AnimeListSerializer
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = AnimeFilter
 
 
-class AnimeDetailView(APIView):
-    def get(self, request, pk):
-        anime = Anime.objects.get(id=pk)
-        serializer = AnimeDetailSerializer(anime, many=False)
-        return Response(serializer.data)
+class AnimeDetailView(generics.RetrieveAPIView):
+    queryset = Anime.objects.all()
+    serializer_class = AnimeDetailSerializer
 
 
 class CommentCreateView(APIView):
