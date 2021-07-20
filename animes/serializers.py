@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Anime, Comment, Rating, AnimeScreenshots
+from .models import Anime, Comment, Rating, AnimeScreenshots, Character, Seiyu
 
 
 class AnimeListSerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class AnimeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Anime
-        fields = ('title', 'type', 'year')
+        fields = ('title', 'poster', 'type', 'year')
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -73,3 +73,32 @@ class RatingCreateSerializer(serializers.ModelSerializer):
             rating.score = score
         rating.save()
         return rating
+
+
+class CharacterListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Character
+        fields = ('id', 'name', 'picture')
+
+
+class SeiyuListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seiyu
+        fields = ('id', 'name', 'picture')
+
+
+class SeiyuDetailSerializer(serializers.ModelSerializer):
+    voiced_characters = CharacterListSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Seiyu
+        fields = '__all__'
+
+
+class CharacterDetailSerializer(serializers.ModelSerializer):
+    animes = AnimeListSerializer(read_only=True, many=True)
+    seiyu = SeiyuListSerializer(read_only=True, many=False)
+
+    class Meta:
+        model = Character
+        fields = '__all__'

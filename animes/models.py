@@ -37,6 +37,8 @@ class Seiyu(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Seiyu'
 
 class Producer(models.Model):
     name = models.CharField('Name', max_length=100)
@@ -50,6 +52,7 @@ class Producer(models.Model):
 class Character(models.Model):
     name = models.CharField('Name', max_length=100)
     picture = models.ImageField('Picture', upload_to='characters/')
+    main_character = models.BooleanField('Main character', default=False)
     description = models.TextField('Description')
     seiyu = models.ForeignKey(Seiyu, on_delete=models.SET_NULL, blank=True,
                               related_name='voiced_characters', null=True)
@@ -83,6 +86,9 @@ class Status(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Statuses'
+
 
 class Anime(models.Model):
     STATUS_CHOICES = [
@@ -98,8 +104,8 @@ class Anime(models.Model):
     rating = models.FloatField('Rating', default=0, null=True)
     year = models.PositiveIntegerField('Year', default=2021)
     release_date = models.DateField('Release date')
-    genres = models.ManyToManyField(Genre)
-    characters = models.ManyToManyField(Character)
+    genres = models.ManyToManyField(Genre, related_name='animes')
+    characters = models.ManyToManyField(Character, related_name='animes')
     producer = models.ForeignKey(Producer, on_delete=models.SET_NULL, blank=True, null=True)
     url = models.SlugField(unique=True, max_length=160)
 
@@ -130,6 +136,10 @@ class Comment(models.Model):
 class AnimeScreenshots(models.Model):
     screenshot = models.ImageField('Screenshot', upload_to='anime_screenshots/')
     anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='anime_screenshots')
+
+    class Meta:
+        verbose_name_plural = 'Anime screenshots'
+        verbose_name = 'Anime screenshot'
 
 
 class Rating(models.Model):

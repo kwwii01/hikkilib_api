@@ -1,9 +1,19 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
 
-from .models import Anime
-from .serializers import AnimeListSerializer, AnimeDetailSerializer, CommentCreateSerializer, RatingCreateSerializer
+from .models import Anime, Character, Seiyu
+from .serializers import (
+    AnimeListSerializer,
+    AnimeDetailSerializer,
+    CommentCreateSerializer,
+    RatingCreateSerializer,
+    CharacterListSerializer,
+    CharacterDetailSerializer,
+    SeiyuListSerializer,
+    SeiyuDetailSerializer,
+)
 
 
 class AnimeListView(APIView):
@@ -38,3 +48,23 @@ class RatingCreateView(APIView):
         if rating.is_valid():
             rating.save()
         return Response(rating.data)
+
+
+class CharacterListView(generics.ListAPIView):
+    queryset = Character.objects.all()
+    serializer_class = CharacterListSerializer
+
+
+class CharacterDetailView(generics.RetrieveAPIView):
+    queryset = Character.objects.all()
+    serializer_class = CharacterDetailSerializer
+
+
+class SeiyuListView(generics.ListAPIView):
+    queryset = Seiyu.objects.all()
+    serializer_class = SeiyuListSerializer
+
+
+class SeiyuDetailView(generics.RetrieveAPIView):
+    queryset = Seiyu.objects.all()
+    serializer_class = SeiyuDetailSerializer
