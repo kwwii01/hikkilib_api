@@ -9,7 +9,7 @@ class AnimeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Anime
-        fields = ('title', 'poster', 'type', 'year', 'status')
+        fields = ('title', 'poster', 'type', 'year', 'status', 'rating')
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):

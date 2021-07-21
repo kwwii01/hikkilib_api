@@ -25,9 +25,10 @@ from .serializers import (
 class AnimeListView(generics.ListAPIView):
     queryset = Anime.objects.all().distinct()
     serializer_class = AnimeListSerializer
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     filterset_class = AnimeFilter
     search_fields = ['title', 'description']
+    ordering_fields = ['rating', 'release_date']
 
 
 class AnimeDetailView(generics.RetrieveAPIView):
