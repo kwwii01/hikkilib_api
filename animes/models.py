@@ -106,7 +106,7 @@ class Anime(models.Model):
     year = models.PositiveIntegerField('Year', default=2021)
     release_date = models.DateField('Release date')
     genres = models.ManyToManyField(Genre, related_name='animes')
-    characters = models.ManyToManyField(Character, related_name='animes')
+    characters = models.ManyToManyField(Character, related_name='related_animes')
     producer = models.ForeignKey(Producer, on_delete=models.SET_NULL, blank=True, null=True)
     url = models.SlugField(unique=True, max_length=160)
 

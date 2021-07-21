@@ -2,11 +2,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
+from rest_framework import filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Anime, Character, Seiyu, Profile
-from .service import AnimeFilter
+from .service import AnimeFilter, CharacterFilter
 from .serializers import (
     AnimeListSerializer,
     AnimeDetailSerializer,
@@ -24,8 +25,9 @@ from .serializers import (
 class AnimeListView(generics.ListAPIView):
     queryset = Anime.objects.all().distinct()
     serializer_class = AnimeListSerializer
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = AnimeFilter
+    search_fields = ['title', 'description']
 
 
 class AnimeDetailView(generics.RetrieveAPIView):
@@ -56,6 +58,9 @@ class RatingCreateView(APIView):
 class CharacterListView(generics.ListAPIView):
     queryset = Character.objects.all()
     serializer_class = CharacterListSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = CharacterFilter
+    search_fields = ['name', 'description']
 
 
 class CharacterDetailView(generics.RetrieveAPIView):
@@ -66,6 +71,8 @@ class CharacterDetailView(generics.RetrieveAPIView):
 class SeiyuListView(generics.ListAPIView):
     queryset = Seiyu.objects.all()
     serializer_class = SeiyuListSerializer
+    filter_backends = [filters.SearchFilter, ]
+    search_fields = ['name', ]
 
 
 class SeiyuDetailView(generics.RetrieveAPIView):
@@ -76,6 +83,8 @@ class SeiyuDetailView(generics.RetrieveAPIView):
 class ProfileListView(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileListSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ['user__username', ]
 
 
 class ProfileDetailView(generics.RetrieveAPIView):

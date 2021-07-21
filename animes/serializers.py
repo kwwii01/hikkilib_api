@@ -101,7 +101,7 @@ class SeiyuListSerializer(serializers.ModelSerializer):
 
 
 class CharacterDetailSerializer(serializers.ModelSerializer):
-    animes = AnimeListSerializer(read_only=True, many=True)
+    related_animes = AnimeListSerializer(read_only=True, many=True)
     seiyu = SeiyuListSerializer(read_only=True, many=False)
 
     class Meta:
