@@ -81,13 +81,13 @@ class ProducerAdmin(admin.ModelAdmin):
 class RatingInline(admin.TabularInline):
     model = Rating
     extra = 0
-    readonly_fields = ('user', 'score', 'anime')
+    readonly_fields = ('profile', 'score', 'anime')
 
 
 class CommentInline(admin.StackedInline):
     model = Comment
     extra = 0
-    readonly_fields = ('user', )
+    readonly_fields = ('profile', )
 
 
 class AnimeScreenshotInline(admin.TabularInline):
@@ -154,5 +154,5 @@ class CharacterAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'anime')
+    list_display = ('id', 'profile', 'anime')
 

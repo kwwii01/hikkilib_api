@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Anime, Comment, Rating, AnimeScreenshots, Character, Seiyu
+from .models import Anime, Comment, Rating, AnimeScreenshots, Character, Seiyu, Profile
 
 
 class AnimeListSerializer(serializers.ModelSerializer):
@@ -18,19 +18,30 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         fields = ('anime', 'text')
 
     def create(self, validated_data):
+        profile = Profile.objects.get(user=self.context.get('user'))
         comment = Comment(
             text=validated_data['text'],
-            user=self.context.get('user'),
+            profile=profile,
             anime=validated_data['anime'],
         )
         comment.save()
         return comment
 
 
+class ProfileListSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ('id', 'user', 'picture')
+
+
 class CommentSerializer(serializers.ModelSerializer):
+    profile = ProfileListSerializer(read_only=True, many=False)
+
     class Meta:
         model = Comment
-        fields = ('user', 'text', 'publish_date')
+        fields = ('profile', 'text', 'publish_date')
 
 
 class AnimeScreenshotSerializer(serializers.ModelSerializer):
@@ -47,16 +58,17 @@ class RatingCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         chosen_anime = validated_data['anime']
         current_user = self.context.get('user')
+        profile = Profile.objects.get(user=current_user)
         score = validated_data['score']
-        rating = Rating.objects.filter(anime=chosen_anime, user=current_user)
+        rating = Rating.objects.filter(anime=chosen_anime, profile=profile)
         if not rating:
             rating = Rating(
                 anime=chosen_anime,
                 score=score,
-                user=current_user,
+                profile=profile,
             )
         else:
-            rating = Rating.objects.get(anime=chosen_anime, user=current_user)
+            rating = Rating.objects.get(anime=chosen_anime, profile=profile)
             rating.score = score
         rating.save()
         return rating
@@ -88,6 +100,15 @@ class SeiyuListSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'picture')
 
 
+class CharacterDetailSerializer(serializers.ModelSerializer):
+    animes = AnimeListSerializer(read_only=True, many=True)
+    seiyu = SeiyuListSerializer(read_only=True, many=False)
+
+    class Meta:
+        model = Character
+        fields = '__all__'
+
+
 class SeiyuDetailSerializer(serializers.ModelSerializer):
     voiced_characters = CharacterListSerializer(read_only=True, many=True)
 
@@ -96,10 +117,10 @@ class SeiyuDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CharacterDetailSerializer(serializers.ModelSerializer):
-    animes = AnimeListSerializer(read_only=True, many=True)
-    seiyu = SeiyuListSerializer(read_only=True, many=False)
+class ProfileDetailSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    rated_animes = serializers.StringRelatedField(many=True)
 
     class Meta:
-        model = Character
+        model = Profile
         fields = '__all__'

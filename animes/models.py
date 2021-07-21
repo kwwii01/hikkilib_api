@@ -8,7 +8,7 @@ class Profile(models.Model):
         ('f', 'Female'),
         ('m', 'Male'),
     ]
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     picture = models.ImageField('Picture', upload_to='profiles/', null=True, blank=True,
                                 default='profiles/nopic.png')
     sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1, null=True, blank=True)
@@ -126,12 +126,12 @@ class Anime(models.Model):
 
 class Comment(models.Model):
     text = models.TextField('Text', max_length=500)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, related_name='published_comments')
     anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='comments')
     publish_date = models.DateTimeField('Publish date', auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} about {self.anime} ({str(self.publish_date)})"
+        return f"{self.profile.user.username} about {self.anime} ({str(self.publish_date)})"
 
 
 class AnimeScreenshots(models.Model):
@@ -167,8 +167,8 @@ class Rating(models.Model):
         (GODTIER, 'God tier')
     ]
     score = models.IntegerField('Score', choices=SCORE_CHOICES)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, related_name='rated_animes')
     anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='users_ratings')
 
     def __str__(self):
-        return f"{self.user.username} rated {self.anime.title} with {self.score}"
+        return f"{self.profile.user.username} rated {self.anime.title} with {self.score}"

@@ -5,9 +5,7 @@ from rest_framework import generics
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from django.db.models import Count
-
-from .models import Anime, Character, Seiyu
+from .models import Anime, Character, Seiyu, Profile
 from .service import AnimeFilter
 from .serializers import (
     AnimeListSerializer,
@@ -18,6 +16,8 @@ from .serializers import (
     CharacterDetailSerializer,
     SeiyuListSerializer,
     SeiyuDetailSerializer,
+    ProfileListSerializer,
+    ProfileDetailSerializer,
 )
 
 
@@ -71,3 +71,14 @@ class SeiyuListView(generics.ListAPIView):
 class SeiyuDetailView(generics.RetrieveAPIView):
     queryset = Seiyu.objects.all()
     serializer_class = SeiyuDetailSerializer
+
+
+class ProfileListView(generics.ListAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileListSerializer
+
+
+class ProfileDetailView(generics.RetrieveAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileDetailSerializer
+
