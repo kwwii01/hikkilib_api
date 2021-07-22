@@ -41,7 +41,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('profile', 'text', 'publish_date')
+        fields = ('id', 'profile', 'text', 'publish_date')
 
 
 class AnimeScreenshotSerializer(serializers.ModelSerializer):

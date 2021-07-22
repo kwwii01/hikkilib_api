@@ -1,12 +1,13 @@
+from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics
-from rest_framework import filters
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework import generics, status, filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Anime, Character, Seiyu, Profile
+from .models import Anime, Character, Seiyu, Profile, Comment
+from .permissions import IsCommentOwnerOrAdmin
 from .service import AnimeFilter, CharacterFilter
 from .serializers import (
     AnimeListSerializer,
@@ -44,6 +45,31 @@ class CommentCreateView(APIView):
         if comment.is_valid():
             comment.save()
         return Response(comment.data)
+
+
+class CommentUpdateDeleteView(APIView):
+    permission_classes = [IsCommentOwnerOrAdmin]
+
+    def get_object(self, pk):
+        try:
+            return Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk, format=None):
+        comment = self.get_object(pk)
+        self.check_object_permissions(request, comment)
+        serializer = CommentCreateSerializer(comment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        comment = self.get_object(pk)
+        self.check_object_permissions(request, comment)
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RatingCreateView(APIView):
