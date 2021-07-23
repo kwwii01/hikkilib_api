@@ -6,7 +6,7 @@ from rest_framework import generics, status, filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Anime, Character, Seiyu, Profile, Comment, AnimeList
+from .models import Anime, Character, Seiyu, Profile, Comment, AnimeList, AnimeListItem
 from .permissions import IsCommentOwnerOrAdmin
 from .service import AnimeFilter, CharacterFilter
 from .serializers import (
@@ -73,16 +73,6 @@ class CommentUpdateDeleteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# class RatingCreateView(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def post(self, request):
-#         rating = RatingCreateSerializer(data=request.data, context={'user': request.user})
-#         if rating.is_valid():
-#             rating.save()
-#         return Response(rating.data)
-
-
 class CharacterListView(generics.ListAPIView):
     queryset = Character.objects.all()
     serializer_class = CharacterListSerializer
@@ -135,7 +125,7 @@ class AnimeUserListView(APIView):
         return Response(serializer.data)
 
 
-class AddAnimeToListView(APIView):
+class AddUpdateAnimeInListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -152,3 +142,15 @@ class AddAnimeToListView(APIView):
             serializer.save()
         return Response(serializer.data)
 
+    def put(self, request, pk):
+        anime = self.get_object(pk)
+        try:
+            current_user = request.user
+            current_profile = Profile.objects.get(user=current_user)
+            item = current_profile.anime_list.items.get(anime=anime)
+            serializer = AnimeListItemSerializer(item, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+            return Response(serializer.data)
+        except [AnimeListItem.DoesNotExist, Profile.DoesNotExist]:
+            raise Http404
