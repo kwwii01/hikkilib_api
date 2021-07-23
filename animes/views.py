@@ -1,25 +1,25 @@
 from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status, filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Anime, Character, Seiyu, Profile, Comment
+from .models import Anime, Character, Seiyu, Profile, Comment, AnimeList
 from .permissions import IsCommentOwnerOrAdmin
 from .service import AnimeFilter, CharacterFilter
 from .serializers import (
     AnimeListSerializer,
     AnimeDetailSerializer,
     CommentCreateSerializer,
-    RatingCreateSerializer,
     CharacterListSerializer,
     CharacterDetailSerializer,
     SeiyuListSerializer,
     SeiyuDetailSerializer,
     ProfileListSerializer,
     ProfileDetailSerializer,
+    AnimeUserListSerializer,
 )
 
 
@@ -72,14 +72,14 @@ class CommentUpdateDeleteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RatingCreateView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        rating = RatingCreateSerializer(data=request.data, context={'user': request.user})
-        if rating.is_valid():
-            rating.save()
-        return Response(rating.data)
+# class RatingCreateView(APIView):
+#     permission_classes = [IsAuthenticated]
+#
+#     def post(self, request):
+#         rating = RatingCreateSerializer(data=request.data, context={'user': request.user})
+#         if rating.is_valid():
+#             rating.save()
+#         return Response(rating.data)
 
 
 class CharacterListView(generics.ListAPIView):
@@ -118,3 +118,17 @@ class ProfileDetailView(generics.RetrieveAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileDetailSerializer
 
+
+class AnimeUserListView(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Profile.objects.get(pk=pk)
+        except Profile.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        profile = self.get_object(pk)
+        anime_list = profile.anime_list
+        serializer = AnimeUserListSerializer(anime_list, many=False)
+        return Response(serializer.data)

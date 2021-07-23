@@ -13,7 +13,7 @@ class Profile(models.Model):
                                 default='profiles/nopic.png')
     sex = models.CharField('Sex', choices=SEX_CHOICE, max_length=1, null=True, blank=True)
     bio = models.TextField('Bio', max_length=500, null=True, blank=True)
-    birth_date = models.DateField(blank=True, null=True)
+    birth_date = models.DateField('Birth date', blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -114,12 +114,15 @@ class Anime(models.Model):
         return self.title
 
     def calculate_rating(self):
-        ratings_count = self.users_ratings.all().count()
+        users_ratings = AnimeListItem.objects.filter(anime=self)
+        ratings_count = users_ratings.count()
         if ratings_count == 0:
             return 0
 
         score_sum = 0
-        for rating in self.users_ratings.all():
+        for rating in users_ratings:
+            if rating.score == 0:
+                continue
             score_sum += rating.score
         return round((score_sum / ratings_count), 2)
 
@@ -143,7 +146,21 @@ class AnimeScreenshots(models.Model):
         verbose_name = 'Anime screenshot'
 
 
-class Rating(models.Model):
+class AnimeList(models.Model):
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='anime_list')
+
+    def __str__(self):
+        return f"{self.profile.user.username}'s list"
+
+
+class AnimeListItem(models.Model):
+    STATUS_CHOICES = [
+        ('Planned', 'Planned'),
+        ('Watching', 'Watching'),
+        ('Completed', 'Completed'),
+        ('On hold', 'On hold'),
+        ('Dropped', 'Dropped'),
+    ]
     WORST = 1
     TERRIBLE = 2
     SHITTY = 3
@@ -154,7 +171,9 @@ class Rating(models.Model):
     EXCELLENT = 8
     MASTERPIECE = 9
     GODTIER = 10
+    DO_NOT_MATCH = 0
     SCORE_CHOICES = [
+        (DO_NOT_MATCH, 'Do not match'),
         (WORST, 'Worst'),
         (TERRIBLE, 'Terrible'),
         (SHITTY, 'Shitty'),
@@ -166,9 +185,8 @@ class Rating(models.Model):
         (MASTERPIECE, 'Masterpiece'),
         (GODTIER, 'God tier')
     ]
-    score = models.IntegerField('Score', choices=SCORE_CHOICES)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, related_name='rated_animes')
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='users_ratings')
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+    status = models.CharField('Status', choices=STATUS_CHOICES, max_length=10, default='Planned')
+    list = models.ForeignKey('AnimeList', on_delete=models.CASCADE, related_name='items')
+    score = models.IntegerField('Score', choices=SCORE_CHOICES, default=0)
 
-    def __str__(self):
-        return f"{self.profile.user.username} rated {self.anime.title} with {self.score}"

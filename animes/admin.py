@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django import forms
 from django.utils.html import mark_safe
-from .models import Type, Anime, Seiyu, Producer, Genre, Comment,\
-    Profile, Rating, Character, AnimeScreenshots, Status
+from .models import Type, Anime, Seiyu, Producer, Genre, Comment, \
+    Profile, Character, AnimeScreenshots, Status, AnimeList
 
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.conf import settings
@@ -78,12 +78,6 @@ class ProducerAdmin(admin.ModelAdmin):
     get_picture.short_description = 'Picture'
 
 
-class RatingInline(admin.TabularInline):
-    model = Rating
-    extra = 0
-    readonly_fields = ('profile', 'score', 'anime')
-
-
 class CommentInline(admin.StackedInline):
     model = Comment
     extra = 0
@@ -128,7 +122,7 @@ class AnimeAdmin(admin.ModelAdmin):
             'fields': ('url', )
         }),
     )
-    inlines = [AnimeScreenshotInline, RatingInline, CommentInline]
+    inlines = [AnimeScreenshotInline, CommentInline]
     form = AnimeAdminForm
     save_on_top = True
     save_as = True
@@ -155,4 +149,9 @@ class CharacterAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'profile', 'anime')
+
+
+@admin.register(AnimeList)
+class AnimeListAdmin(admin.ModelAdmin):
+    list_display = ('id', 'profile')
 

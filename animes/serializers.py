@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Anime, Comment, Rating, AnimeScreenshots, Character, Seiyu, Profile
+from .models import Anime, Comment, AnimeScreenshots, Character, Seiyu, Profile, AnimeList, AnimeListItem
 
 
 class AnimeListSerializer(serializers.ModelSerializer):
@@ -9,7 +9,7 @@ class AnimeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Anime
-        fields = ('title', 'poster', 'type', 'year', 'status', 'rating')
+        fields = ('id', 'title', 'poster', 'type', 'year', 'status', 'rating')
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -50,28 +50,29 @@ class AnimeScreenshotSerializer(serializers.ModelSerializer):
         fields = ('screenshot', )
 
 
-class RatingCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rating
-        fields = ('anime', 'score')
-
-    def create(self, validated_data):
-        chosen_anime = validated_data['anime']
-        current_user = self.context.get('user')
-        profile = Profile.objects.get(user=current_user)
-        score = validated_data['score']
-        rating = Rating.objects.filter(anime=chosen_anime, profile=profile)
-        if not rating:
-            rating = Rating(
-                anime=chosen_anime,
-                score=score,
-                profile=profile,
-            )
-        else:
-            rating = Rating.objects.get(anime=chosen_anime, profile=profile)
-            rating.score = score
-        rating.save()
-        return rating
+# class RatingCreateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Rating
+#         fields = ('anime', 'score')
+#
+#     def create(self, validated_data):
+#         chosen_anime = validated_data['anime']
+#         current_user = self.context.get('user')
+#         profile = Profile.objects.get(user=current_user)
+#         anime_list = AnimeList.objects.get(profile=profile)
+#         score = validated_data['score']
+#         rating = Rating.objects.filter(anime=chosen_anime, anime_list=anime_list)
+#         if not rating:
+#             rating = Rating(
+#                 anime=chosen_anime,
+#                 score=score,
+#                 anime_list=anime_list,
+#             )
+#         else:
+#             rating = Rating.objects.get(anime=chosen_anime, anime_list=anime_list)
+#             rating.score = score
+#         rating.save()
+#         return rating
 
 
 class CharacterListSerializer(serializers.ModelSerializer):
@@ -119,8 +120,25 @@ class SeiyuDetailSerializer(serializers.ModelSerializer):
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(slug_field='username', read_only=True)
-    rated_animes = serializers.StringRelatedField(many=True)
+    anime_list = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
 
     class Meta:
         model = Profile
+        fields = '__all__'
+
+
+class AnimeListItemSerializer(serializers.ModelSerializer):
+    anime = AnimeListSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = AnimeListItem
+        fields = ('id', 'anime', 'score')
+
+
+class AnimeUserListSerializer(serializers.ModelSerializer):
+    items = AnimeListItemSerializer(many=True)
+    profile = ProfileListSerializer(many=False)
+
+    class Meta:
+        model = AnimeList
         fields = '__all__'
