@@ -132,7 +132,30 @@ class AnimeListItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnimeListItem
-        fields = ('id', 'anime', 'score')
+        exclude = ('list', )
+
+    def create(self, validated_data):
+        chosen_anime = self.context.get('anime')
+        current_user = self.context.get('user')
+        profile = Profile.objects.get(user=current_user)
+        anime_list = AnimeList.objects.get(profile=profile)
+        score = None
+        status = None
+        try:
+            score = validated_data['score']
+            status = validated_data['status']
+        except KeyError:
+            score = AnimeListItem.DO_NOT_MATCH
+            status = 'Planned'
+        try:
+            item = anime_list.items.get(anime=chosen_anime)
+            item.score = score
+            item.status = status
+            item.save()
+            return item
+        except AnimeListItem.DoesNotExist:
+            item = anime_list.items.create(anime=chosen_anime, score=score, status=status)
+            return item
 
 
 class AnimeUserListSerializer(serializers.ModelSerializer):

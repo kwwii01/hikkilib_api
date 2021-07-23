@@ -20,6 +20,7 @@ from .serializers import (
     ProfileListSerializer,
     ProfileDetailSerializer,
     AnimeUserListSerializer,
+    AnimeListItemSerializer,
 )
 
 
@@ -132,3 +133,22 @@ class AnimeUserListView(APIView):
         anime_list = profile.anime_list
         serializer = AnimeUserListSerializer(anime_list, many=False)
         return Response(serializer.data)
+
+
+class AddAnimeToListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Anime.objects.get(pk=pk)
+        except Anime.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        anime = self.get_object(pk)
+        serializer = AnimeListItemSerializer(data=request.data, context={'user': request.user,
+                                                                         'anime': anime})
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data)
+

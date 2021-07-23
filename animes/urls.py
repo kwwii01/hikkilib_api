@@ -7,6 +7,7 @@ app_name = 'anime_api'
 urlpatterns = [
     path('animes/', views.AnimeListView.as_view()),
     path('animes/<int:pk>/', views.AnimeDetailView.as_view()),
+    path('animes/<int:pk>/add-to-list/', views.AddAnimeToListView.as_view()),
     path('comments/', views.CommentCreateView.as_view()),
     path('comments/<int:pk>/', views.CommentUpdateDeleteView.as_view()),
     path('characters/', views.CharacterListView.as_view()),
