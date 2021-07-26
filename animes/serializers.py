@@ -102,6 +102,12 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AnimeListItemMinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnimeListItem
+        exclude = ('list', 'anime', 'id')
+
+
 class AnimeListItemSerializer(serializers.ModelSerializer):
     anime = AnimeListSerializer(many=False, read_only=True)
 

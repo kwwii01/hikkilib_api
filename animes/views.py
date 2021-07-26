@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -21,6 +21,7 @@ from .serializers import (
     ProfileDetailSerializer,
     AnimeUserListSerializer,
     AnimeListItemSerializer,
+    AnimeListItemMinSerializer,
 )
 
 
@@ -154,3 +155,32 @@ class AddUpdateAnimeInListView(APIView):
             return Response(serializer.data)
         except [AnimeListItem.DoesNotExist, Profile.DoesNotExist]:
             raise Http404
+
+
+class AnimeInfoFromListView(APIView):
+    def get_current_profile(self, request):
+        try:
+            current_profile = Profile.objects.get(user=request.user)
+            return current_profile
+        except Profile.DoesNotExist:
+            raise Http404
+
+    def get_searched_anime(self, pk):
+        try:
+            anime = Anime.objects.get(pk=pk)
+            return anime
+        except Anime.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        if request.user.is_authenticated:
+            current_profile = self.get_current_profile(request)
+            anime = self.get_searched_anime(pk)
+            try:
+                item = current_profile.anime_list.items.get(anime=anime)
+                serializer = AnimeListItemMinSerializer(item, many=False)
+                return Response(serializer.data)
+            except AnimeListItem.DoesNotExist:
+                return JsonResponse({'message': 'Anime is not in list'}, safe=False)
+        else:
+            return JsonResponse({'message': 'User is not authenticated'}, safe=False)

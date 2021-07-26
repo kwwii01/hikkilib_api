@@ -9,6 +9,7 @@ urlpatterns = [
     path('animes/<int:pk>/', views.AnimeDetailView.as_view()),
     path('animes/<int:pk>/add-to-list/', views.AddUpdateAnimeInListView.as_view()),
     path('animes/<int:pk>/update-in-list/', views.AddUpdateAnimeInListView.as_view()),
+    path('animes/<int:pk>/check-in-list/', views.AnimeInfoFromListView.as_view()),
     path('comments/', views.CommentCreateView.as_view()),
     path('comments/<int:pk>/', views.CommentUpdateDeleteView.as_view()),
     path('characters/', views.CharacterListView.as_view()),
