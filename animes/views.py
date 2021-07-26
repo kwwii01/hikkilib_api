@@ -126,7 +126,7 @@ class AnimeUserListView(APIView):
         return Response(serializer.data)
 
 
-class AddUpdateAnimeInListView(APIView):
+class AddUpdateDeleteAnimeInListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -156,8 +156,21 @@ class AddUpdateAnimeInListView(APIView):
         except [AnimeListItem.DoesNotExist, Profile.DoesNotExist]:
             raise Http404
 
+    def delete(self, request, pk):
+        anime = self.get_object(pk)
+        try:
+            current_user = request.user
+            current_profile = Profile.objects.get(user=current_user)
+            item = current_profile.anime_list.items.get(anime=anime)
+            item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except [AnimeListItem.DoesNotExist, Profile.DoesNotExist]:
+            raise Http404
+
 
 class AnimeInfoFromListView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_current_profile(self, request):
         try:
             current_profile = Profile.objects.get(user=request.user)
@@ -173,14 +186,11 @@ class AnimeInfoFromListView(APIView):
             raise Http404
 
     def get(self, request, pk):
-        if request.user.is_authenticated:
-            current_profile = self.get_current_profile(request)
-            anime = self.get_searched_anime(pk)
-            try:
-                item = current_profile.anime_list.items.get(anime=anime)
-                serializer = AnimeListItemMinSerializer(item, many=False)
-                return Response(serializer.data)
-            except AnimeListItem.DoesNotExist:
-                return JsonResponse({'message': 'Anime is not in list'}, safe=False)
-        else:
-            return JsonResponse({'message': 'User is not authenticated'}, safe=False)
+        current_profile = self.get_current_profile(request)
+        anime = self.get_searched_anime(pk)
+        try:
+            item = current_profile.anime_list.items.get(anime=anime)
+            serializer = AnimeListItemMinSerializer(item, many=False)
+            return Response(serializer.data)
+        except AnimeListItem.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
