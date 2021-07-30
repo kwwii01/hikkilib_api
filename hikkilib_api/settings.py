@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-q^v#qwlbefqqpkh_3ox81t4z$kvi3+#7s1@7g3!ztcj$9)q4)z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -49,7 +49,9 @@ INSTALLED_APPS = [
 
     'djoser',
 
-    'django_filters'
+    'django_filters',
+
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'hikkilib_api.urls'
@@ -169,3 +172,5 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {},
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
