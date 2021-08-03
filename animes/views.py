@@ -111,6 +111,15 @@ class ProfileDetailView(generics.RetrieveAPIView):
     serializer_class = ProfileDetailSerializer
 
 
+class ProfileMeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.profile
+        serializer = ProfileDetailSerializer(profile, context={'request': request}, many=False)
+        return Response(serializer.data)
+
+
 class AnimeUserListView(APIView):
 
     def get_object(self, pk):

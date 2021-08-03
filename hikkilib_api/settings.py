@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-q^v#qwlbefqqpkh_3ox81t4z$kvi3+#7s1@7g3!ztcj$9)q4)z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -163,6 +163,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DATETIME_FORMAT': '%d.%m.%Y %H:%M',
+    'DATE_FORMAT': '%b %d, %Y',
 }
 
 DJOSER = {
@@ -173,4 +174,6 @@ DJOSER = {
     'SERIALIZERS': {},
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000'
+]

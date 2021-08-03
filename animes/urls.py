@@ -18,6 +18,7 @@ urlpatterns = [
     path('seiyu/', views.SeiyuListView.as_view()),
     path('seiyu/<int:pk>/', views.SeiyuDetailView.as_view()),
     path('profiles/', views.ProfileListView.as_view()),
+    path('profiles/me/', views.ProfileMeView.as_view()),
     path('profiles/<int:pk>/', views.ProfileDetailView.as_view()),
     path('profiles/<int:pk>/list', views.AnimeUserListView.as_view()),
 
