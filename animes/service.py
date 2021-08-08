@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Anime, Character
+from .models import Anime, Character, Genre
 
 
 class CharFilterInFilter(filters.BaseInFilter, filters.CharFilter):
@@ -7,7 +7,12 @@ class CharFilterInFilter(filters.BaseInFilter, filters.CharFilter):
 
 
 class AnimeFilter(filters.FilterSet):
-    genres = CharFilterInFilter(field_name='genres__name', lookup_expr='in')
+    genres = filters.ModelMultipleChoiceFilter(
+        field_name='genres__name',
+        to_field_name='name',
+        conjoined=True,
+        queryset=Genre.objects.all()
+    )
     year = filters.RangeFilter()
     status = CharFilterInFilter(field_name='status__name', lookup_expr='in')
     type = CharFilterInFilter(field_name='type__name', lookup_expr='in')

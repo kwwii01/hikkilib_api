@@ -21,5 +21,8 @@ urlpatterns = [
     path('profiles/me/', views.ProfileMeView.as_view()),
     path('profiles/<int:pk>/', views.ProfileDetailView.as_view()),
     path('profiles/<int:pk>/list', views.AnimeUserListView.as_view()),
-
+    path('genres/', views.GenreListView.as_view()),
+    path('statuses/', views.StatusListView.as_view()),
+    path('types/', views.TypeListView.as_view()),
+    path('producers/', views.ProducerListView.as_view()),
 ]

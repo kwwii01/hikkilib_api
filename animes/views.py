@@ -6,7 +6,8 @@ from rest_framework import generics, status, filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Anime, Character, Seiyu, Profile, Comment, AnimeList, AnimeListItem
+from .models import (Anime, Character, Seiyu, Profile, Comment,
+                     AnimeList, AnimeListItem, Genre, Status, Producer, Type)
 from .permissions import IsCommentOwnerOrAdmin
 from .service import AnimeFilter, CharacterFilter
 from .serializers import (
@@ -22,6 +23,10 @@ from .serializers import (
     AnimeUserListSerializer,
     AnimeListItemSerializer,
     AnimeListItemMinSerializer,
+    GenreNameSerializer,
+    StatusNameSerializer,
+    ProducerNameSerializer,
+    TypeNameSerializer,
 )
 
 
@@ -203,3 +208,23 @@ class AnimeInfoFromListView(APIView):
             return Response(serializer.data)
         except AnimeListItem.DoesNotExist:
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GenreListView(generics.ListAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreNameSerializer
+
+
+class StatusListView(generics.ListAPIView):
+    queryset = Status.objects.all()
+    serializer_class = StatusNameSerializer
+
+
+class ProducerListView(generics.ListAPIView):
+    queryset = Producer.objects.all()
+    serializer_class = ProducerNameSerializer
+
+
+class TypeListView(generics.ListAPIView):
+    queryset = Type.objects.all()
+    serializer_class = TypeNameSerializer

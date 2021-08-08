@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from .models import Anime, Comment, AnimeScreenshots, Character, Seiyu, Profile, AnimeList, AnimeListItem
+from .models import (Anime, Comment, AnimeScreenshots, Character,
+                     Seiyu, Profile, AnimeList, AnimeListItem, Genre, Type, Status, Producer)
 
 
 class AnimeListSerializer(serializers.ModelSerializer):
@@ -144,3 +145,27 @@ class AnimeUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnimeList
         fields = '__all__'
+
+
+class GenreNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ('name',)
+
+
+class TypeNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Type
+        fields = ('name',)
+
+
+class StatusNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Status
+        fields = ('name',)
+
+
+class ProducerNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Producer
+        fields = ('name',)
